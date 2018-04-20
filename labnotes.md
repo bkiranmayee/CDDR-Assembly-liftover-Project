@@ -15,14 +15,14 @@ The following steps were already done by Derek
 > Assembler2: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc
 
 ```bash
-The query assembly fasta is first divided into chr chunks of 10000 bases for the BLAT aligner to work faster
+# The query assembly fasta is first divided into chr chunks of 10000 bases for the BLAT aligner to work faster
 mkdir chrchunks
 perl -lane 'system("samtools faidx ARS-UCD1.0.14.clean.wIGCHaps.fasta $F[0] > chrchunks/$F[0].fa");' < ARS-UCD1.0.14.clean.wIGCHaps.fasta.fai
 
-Converting to 2bit assemblies
+# Converting to 2bit assemblies
 for i in chrchunks/*.fa; do name=`basename $i | cut -d'.' -f1`; echo $name; /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/faToTwoBit $i chrchunks/${name}.2bit; done
 
-start aligning using BLAT
+# start aligning using BLAT
 module load blat
 for i in chrchunks/*.fa; do sbatch -p assemble3 faSplit_blat_align.sh umd3_kary_unmask_ngap.2bit $i; done
 ```
@@ -32,13 +32,13 @@ The above script 'faSplit_blat_align.sh' generates .psl files which have to be '
 I started working from this step:
 
 ```bash
-start chaining
+# start chaining
 sbatch -p assemble2 psl_merge.sh ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit umd3_kary_unmask_ngap.2bit
 
-The script psl_merge.sh generates chains in the directory working_dir/umd3_psl/chr_sub_chunks which are then grouped per chr 
-and a chain file per chr is created.
+# The script psl_merge.sh generates chains in the directory working_dir/umd3_psl/chr_sub_chunks which are then grouped per chr 
+# and a chain file per chr is created.
 
-These have to be combined again using the following command:
+# These have to be combined again using the following command:
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainMergeSort /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/*_chain/*.chain | /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSplit /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat stdin
 ```
 
