@@ -1,6 +1,9 @@
 # CDDR-Assembly-liftover-Project
+---
+
 Started on Apr 18 2018
-This is a process to create a liftover chain file for converting the assembly coordinates from 
+
+# This is a process to create a liftover chain file for converting the assembly coordinates from 
 the new cattle assembly ars-ucd.v14 to the older version umd3 
 
 The overall preocess is a general one that can be found by googling assembly liftover process...
@@ -14,6 +17,7 @@ Derek's comment: I need to check to see if I can get this working on my non-repe
 working directory:
 Assembler2: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc
 
+```bash
 The query assembly fasta is first divided into chr chunks of 10000 bases for the BLAT aligner to work faster
 mkdir chrchunks
 perl -lane 'system("samtools faidx ARS-UCD1.0.14.clean.wIGCHaps.fasta $F[0] > chrchunks/$F[0].fa");' < ARS-UCD1.0.14.clean.wIGCHaps.fasta.fai
@@ -24,11 +28,13 @@ for i in chrchunks/*.fa; do name=`basename $i | cut -d'.' -f1`; echo $name; /mnt
 start aligning using BLAT
 module load blat
 for i in chrchunks/*.fa; do sbatch -p assemble3 faSplit_blat_align.sh umd3_kary_unmask_ngap.2bit $i; done
+```
 
 The above script 'faSplit_blat_align.sh' generates .psl files which have to be 'chained'
 
 I started working from this step:
 
+```bash
 start chaining
 sbatch -p assemble2 psl_merge.sh ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit umd3_kary_unmask_ngap.2bit
 
@@ -37,6 +43,7 @@ and a chain file per chr is created.
 
 These have to be combined again using the following command:
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainMergeSort /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/*_chain/*.chain | /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSplit /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat stdin
+```
 
 We are not bothered about the unscaffolded elements because the liftover is from a new version (ars.v14) to an old version (umd3)
 We mainly require liftover of the main chr (1-29 and X)
