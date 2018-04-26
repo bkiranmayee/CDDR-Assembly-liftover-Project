@@ -6,6 +6,14 @@
 These are my notes to create a liftover chain file for converting the assembly coordinates from 
 the new cattle assembly ars-ucd.v14 to the older version umd3 
 
+## Table of Contents
+ * [Liftover using BLAT alignment] (#BLAT)
+     * [Run2 using exchanged assemblies] (#exchangedassemblies)
+ * [Liftover using Minimap2 genome to genome alignment] (#MINIMAP2)
+
+<a name="BLAT"></a>
+## Liftover using BLAT alignment
+
 The overall process is a general one that can be found by googling assembly liftover process...
 
 Non-repeatmasked chain of assembly file
@@ -110,6 +118,10 @@ Inspect .psl files and .chain files
 
 Check the steps and the files generated.
 
+
+<a name="exchangedassemblies"></a>
+## Run2 using exchanged assemblies
+
 Trying to run the psl merge step with assemblies exchanged for ref and query:
 
 Script was modified to generate the new chain files with R2 suffix that indicates run2 (psl_merge_kb.sh)
@@ -211,6 +223,8 @@ There are only 3 comments in the unmapped file:
  Split in new.
 
 
+<a name="MINIMAP2"></a>
+## Liftover using MINIMAP2 genome to genome alignment
 
 
 
