@@ -206,9 +206,9 @@ says: Can't locate Mouse.pm
   Looks good!
   
 There are only 3 comments in the unmapped file: 
- Deleted in new
- Partially deleted in new
- Split in new
+ Deleted in new, 
+ Partially deleted in new,
+ Split in new.
 
 
 
