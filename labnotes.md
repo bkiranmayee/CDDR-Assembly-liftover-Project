@@ -110,8 +110,99 @@ Inspect .psl files and .chain files
 
 Check the steps and the files generated.
 
+Trying to run the psl merge step with assemblies exchanged for ref and query:
 
+Script was modified to generate the new chain files with R2 suffix that indicates run2 (psl_merge_kb.sh)
 
+Working directory : /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl
+
+```bash
+# start chaining
+sbatch -p assemble2 psl_merge_kb.sh umd3_kary_unmask_ngap.2bit ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit
+
+# The script worked partially and failed to generate merged chains, the slurm-815776.out says 
+Permission denied
+Couldn't make directory /X_chain.R2
+But the directories were actually created which had no files in it
+
+# Merging these new chain files in a separate step
+for i in `seq 1 29` X; do /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainMergeSort /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/chr_sub_chunks/${i}_*.R2.chain | /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSplit /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/${i}_R2.chain stdin; done
+
+# Combining the chains using the following command:
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainMergeSort /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/*_R2.chain/*.chain | /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSplit /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2 stdin
+
+# Merging all the chr chains
+cat umd3_psl/combined_chain_blat.R2/*.chain > umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.chain
+
+# Sorting the chain
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSort umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.chain umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.sorted.chain
+ 
+# preparing for net
+mkdir umd3_psl/net
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/twoBitInfo ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info
+
+# Creating net file
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainNet umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.sorted.chain umd3_kary_unmask_ngap.2bit.info ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.net /dev/null
+Got 30 chroms in umd3_kary_unmask_ngap.2bit.info, 30 in ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info
+Finishing nets
+writing umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.net
+writing /dev/null
+
+#Now the final step:
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/netChainSubset umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.net umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.sorted.chain umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain
+Processing chr1
+Processing chr2
+Processing chr3
+Processing chr4
+Processing chr5
+Processing chr6
+Processing chr7
+Processing chr8
+Processing chr9
+Processing chr10
+Processing chr11
+Processing chr12
+Processing chr13
+Processing chr14
+Processing chr15
+Processing chr16
+Processing chr17
+Processing chr18
+Processing chr19
+Processing chr20
+Processing chr21
+Processing chr22
+Processing chr23
+Processing chr24
+Processing chr25
+Processing chr26
+Processing chr27
+Processing chr28
+Processing chr29
+Processing chrX
+```
+
+OK, now the new liftover file is ready, I would like to check it.
+
+```bash
+grep 'chain' /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain | perl -lane 'print $F[2];' | perl ~/sperl/bed_cnv_fig_table_pipeline/tabFileColumnCounter.pl -f stdin -c 0 -m
+
+The above command didn't work, some PATH issues
+
+# doing the liftover
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
+
+# Check
+ wc -l /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed  /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
+  23912824 /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed
+  22041746 /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed
+   3742156 /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
+  49696726 total
+  mapped 92.2 %
+  unmapped 7.8%
+  ```
+  Looks good!
+  
 
 
 
