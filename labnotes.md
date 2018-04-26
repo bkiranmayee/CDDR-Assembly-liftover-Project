@@ -185,9 +185,11 @@ Processing chrX
 OK, now the new liftover file is ready, I would like to check it.
 
 ```bash
-grep 'chain' /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain | perl -lane 'print $F[2];' | perl ~/sperl/bed_cnv_fig_table_pipeline/tabFileColumnCounter.pl -f stdin -c 0 -m
+grep 'chain' /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain | perl -lane 'print $F[2];' | perl perl_toolchain/bed_cnv_fig_table_pipeline/tabFileColumnCounter.pl -f stdin -c 0 -m
 
-The above command didn't work, some PATH issues
+The above command didn't work, some PATH issues or something else 
+nameListVennCount.pl script from the same folder works well but tabFileColumnCounter.pl does not.
+says: Can't locate Mouse.pm
 
 # doing the liftover
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/combined.ars.v14_to_umd3.liftover.chain /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
@@ -196,13 +198,19 @@ The above command didn't work, some PATH issues
  wc -l /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed  /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
   23912824 /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed
   22041746 /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var_umd3.bed
-   3742156 /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped
+   3742156 /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/umd3_psl/combined_chain_blat.R2/var.umd3.bed.unmapped <- acutally 1871078 unmapped coordinates
   49696726 total
   mapped 92.2 %
   unmapped 7.8%
   ```
   Looks good!
   
+There are only 3 comments in the unmapped file: 
+ Deleted in new
+ Partially deleted in new
+ Split in new
+
+
 
 
 
