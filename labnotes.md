@@ -7,10 +7,10 @@ These are my notes to create a liftover chain file for converting the assembly c
 the new cattle assembly ars-ucd.v14 to the older version umd3 
 
 ## Table of Contents
- * [Liftover using BLAT alignment] (#BLAT)
-     * [Run2 using exchanged assemblies] (#exchangedassemblies)
- * [Liftover using Minimap2 genome to genome alignment] (#MINIMAP2)
-
+ * [Liftover using BLAT alignment](#BLAT)
+     * [Run2 using exchanged assemblies](#exchangedassemblies)
+ * [Liftover using Minimap2 genome to genome alignment](#MINIMAP2)
+ 
 <a name="BLAT"></a>
 ## Liftover using BLAT alignment
 
@@ -120,7 +120,7 @@ Check the steps and the files generated.
 
 
 <a name="exchangedassemblies"></a>
-## Run2 using exchanged assemblies
+#### Run2 using exchanged assemblies
 
 Trying to run the psl merge step with assemblies exchanged for ref and query:
 
