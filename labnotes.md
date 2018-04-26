@@ -218,9 +218,50 @@ says: Can't locate Mouse.pm
   Looks good!
   
 There are only 3 comments in the unmapped file: 
- Deleted in new, 
- Partially deleted in new,
- Split in new.
+ * Deleted in new, 
+ * Partially deleted in new,
+ * Split in new.
+
+Checking no. of mapped and unmapped positions per chr
+```bash
+for i in `seq 1 29` X; do grep -P -c "^${i}\t" var_umd3.bed; done
+for i in `seq 1 29` X; do grep -P -c "^chr${i}\t" var.umd3.bed.unmapped; done
+
+```
+
+Chr	unmapped	mapped
+1	50452	1446638
+2	26812	1172818
+3	38022	1020819
+4	33378	1107433
+5	35349	1061161
+6	89493	1009999
+7	49568	909069
+8	40039	940160
+9	36039	935833
+10	69117	877597
+11	23048	877464
+12	141361	857306
+13	23416	623273
+14	28619	681012
+15	42354	814693
+16	40104	638619
+17	34816	672204
+18	48984	546515
+19	20948	490303
+20	20973	653529
+21	28220	583328
+22	13975	469894
+23	65575	573192
+24	14962	543848
+25	13234	360100
+26	13538	450934
+27	31771	429846
+28	16412	433489
+29	31208	498538
+X	749291	362132
+total	1871078	22041746
+
 
 
 <a name="MINIMAP2"></a>
