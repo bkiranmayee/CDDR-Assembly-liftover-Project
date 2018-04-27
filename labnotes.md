@@ -275,9 +275,105 @@ for i in `seq 1 29` X; do grep -P -c "^chr${i}\t" var.umd3.bed.unmapped; done
     So first generate .mmi for the reference and use it for the batch job.
     
 ```bash
-sbatch -p assemble2 faSplit_minimap2_align_kb.sh ARS-UCD1.0.14.clean.wIGCHaps.fasta.mmi /mnt/nfs/nfs2/Genomes/umd3_kary_unmask_ngap.fa
-sbatch -p assemble2 faSplit_minimap2_align_kb.r2.sh umd3_kary_unmask_ngap.fa.mmi ARS-UCD1.0.14.clean.wIGCHaps.fasta
+job1 sbatch -p assemble2 faSplit_minimap2_align_kb.sh ARS-UCD1.0.14.clean.wIGCHaps.fasta.mmi /mnt/nfs/nfs2/Genomes/umd3_kary_unmask_ngap.fa
+job2 sbatch -p assemble2 faSplit_minimap2_align_kb.r2.sh umd3_kary_unmask_ngap.fa.mmi ARS-UCD1.0.14.clean.wIGCHaps.fasta
 
 ```
 
 The jobs take around 7.5 hrs to run...so waiting
+Actually job2 was completed in 20 min!!!
+
+Now making chain from psl
+
+```bash
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/axtChain -linearGap=medium -psl minimap_liftover/umd3_ars.v14_mmap.r2.psl /mnt/nfs/nfs2/Genomes/umd3_kary_unmask_ngap.fa ARS-UCD1.0.14.clean.wIGCHaps.fasta minimap_liftover/umd3_ars.v14_mmap.r2.chain
+
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/axtChain -linearGap=medium -psl minimap_liftover/umd3_ars.v14_mmap.r2.psl ARS-UCD1.0.14.clean.wIGCHaps.fasta /mnt/nfs/nfs2/Genomes/umd3_kary_unmask_ngap.fa minimap_liftover/umd3_ars.v14_mmap.r2.chain
+
+showing an error 
+invalid unsigned integer: "-189"
+Line 39813 of the psl file has the first field (Number of matching bases that aren't repeats) -189 
+I changed it to 189 and lets see if it works now?
+Next the error is different:
+it says Can't open query fasta because it is not a directory
+Upon looking at the axtChain script looks like I should be giving the 2bit files for query and target instead of fasta
+
+So here it is:
+
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/axtChain -linearGap=medium -psl minimap_liftover/umd3_ars.v14_mmap.r2.psl umd3_kary_unmask_ngap.2bit ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit minimap_liftover/umd3_ars.v14_mmap.r2.chain
+
+Yes! Now it is working...
+
+Sorting chain...
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainSort /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/minimap_liftover/umd3_ars.v14_mmap.r2.chain /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/minimap_liftover/umd3_ars.v14_mmap.r2.sorted.chain
+
+Generating net
+ /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainNet minimap_liftover/umd3_ars.v14_mmap.r2.sorted.chain umd3_kary_unmask_ngap.2bit.info /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/ars_ucd_14_igc_rmask/ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info minimap_liftover/umd3_ars.v14_mmap.r2.net /dev/null
+
+Got 30 chroms in umd3_kary_unmask_ngap.2bit.info, 2217 in /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/ars_ucd_14_igc_rmask/ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info
+Finishing nets
+writing minimap_liftover/umd3_ars.v14_mmap.r2.net
+writing /dev/null
+
+Finally the liftover chain file
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/netChainSubset minimap_liftover/umd3_ars.v14_mmap.r2.net  minimap_liftover/umd3_ars.v14_mmap.r2.sorted.chain minimap_liftover/umd3_ars.v14_mmap.r2.liftover.chain
+Processing chr1
+Processing chr2
+Processing chr3
+Processing chr4
+Processing chr5
+Processing chr6
+Processing chr7
+Processing chr8
+Processing chr9
+Processing chr10
+Processing chr11
+Processing chr12
+Processing chr13
+Processing chr14
+Processing chr15
+Processing chr16
+Processing chr17
+Processing chr18
+Processing chr19
+Processing chr20
+Processing chr21
+Processing chr22
+Processing chr23
+Processing chr24
+Processing chr25
+Processing chr26
+Processing chr27
+Processing chr28
+Processing chr29
+Processing chrX
+
+Suuccessfully completed...
+```
+Now check the liftover...
+
+```bask
+/mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed minimap_liftover/umd3_ars.v14_mmap.r2.liftover.chain minimap_liftover/var_umd3.bed minimap_liftover/var.umd3.bed.unmapped
+
+ wc -l /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed minimap_liftover/var_umd3.bed minimap_liftover/var.umd3.bed.unmapped
+  23912824 /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed
+  23145319 minimap_liftover/var_umd3.bed <- 96.8%
+   1535010 minimap_liftover/var.umd3.bed.unmapped  <- actually 767505 unmapped positions i.e. 3.2%
+  48593153 total
+   ```
+  Looks great!
+  
+There are only 3 comments in the unmapped file: 
+ * Deleted in new, 
+ * Partially deleted in new,
+ * Split in new.
+
+Checking no. of mapped and unmapped positions per chr
+```bash
+for i in `seq 1 29` X; do grep -P -c "^${i}\t" minimap_liftover/var_umd3.bed; done
+for i in `seq 1 29` X; do grep -P -c "^chr${i}\t" minimap_liftover/var.umd3.bed.unmapped; done
+```
+
+
+  
+
