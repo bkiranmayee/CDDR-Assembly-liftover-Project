@@ -266,5 +266,18 @@ for i in `seq 1 29` X; do grep -P -c "^chr${i}\t" var.umd3.bed.unmapped; done
 <a name="MINIMAP2"></a>
 ## Liftover using MINIMAP2 genome to genome alignment
 
+* Whole genome sequence alignment using minimap2 is much faster than that using BLAT alignment. 
+* The process is simple first use minimap2 for aligning the genomes fasta files which outputs sam format.
+* The sam format can be converted into psl using a python converter program. This step is important to compare the liftover methods.
 
+    The minimap2 aligment uses minimizer files (.mmi) which is a kind of index for the reference fasta file.
+    
+    So first generate .mmi for the reference and use it for the batch job.
+    
+```bash
+sbatch -p assemble2 faSplit_minimap2_align_kb.sh ARS-UCD1.0.14.clean.wIGCHaps.fasta.mmi /mnt/nfs/nfs2/Genomes/umd3_kary_unmask_ngap.fa
+sbatch -p assemble2 faSplit_minimap2_align_kb.r2.sh umd3_kary_unmask_ngap.fa.mmi ARS-UCD1.0.14.clean.wIGCHaps.fasta
 
+```
+
+The jobs take around 7.5 hrs to run...so waiting
