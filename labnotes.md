@@ -924,5 +924,40 @@ Mapping coordinates
   47825648 minimap_liftover/r1/var.umd3.bed.unmapped
   71738472 total
    ```
-  Liftover failed, so the run2 is the correct ones where the reference assembly was umd3 and the query was ARS_UCD.v14
+  Liftover failed, there is something wrong and I guess it is with the chr notation in the bed file
+ So, first change the notation from chr1 to 1 and mapp again
+ 
+ ```bash
+awk '{gsub(/^chr/,""); print}' var_ars_ucd.v14.sorted.bed > test.bed
+
+# Lifting over...
+[kiranmayee.bakshy@assembler2 ars_ucd_114_igc]$ /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/test.bed minimap_liftover/r1/umd3_ars.v14_mmap.liftover.chain minimap_liftover/r1/test_var_umd3.bed minimap_liftover/r1/test_var.umd3.bed.unmapped
+Reading liftover chains
+Mapping coordinates
+
+# Checking liftover
+[kiranmayee.bakshy@assembler2 ars_ucd_114_igc]$ wc -l /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed minimap_liftover/r1/test_var_umd3.bed minimap_liftover/r1/test_var.umd3.bed.unmapped
+  23912824 /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/var_ars_ucd.v14.sorted.bed
+  23203923 minimap_liftover/r1/test_var_umd3.bed
+   1417802 minimap_liftover/r1/test_var.umd3.bed.unmapped <- actually 708901 unmapped positions
+  48534549 total
+ 
+ Mapped 97%
+ unmapped 3%
+ 
+```
+Looks wonderful and correct!!!
+
+```bash
+[kiranmayee.bakshy@assembler2 ars_ucd_114_igc]$ for i in `seq 1 29` X; do grep -P -c "^chr${i}\t" minimap_liftover/r1/test_var_umd3.bed; done
+[kiranmayee.bakshy@assembler2 ars_ucd_114_igc]$ for i in `seq 1 29` X; do grep -P -c "^${i}\t" minimap_liftover/r1/test_var.umd3.bed.unmapped; done
+
+
+
+
+  
+
+
+
+
   
