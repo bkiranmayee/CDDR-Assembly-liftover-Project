@@ -50,3 +50,46 @@ sbatch -p assemble3 minimap2_align_kb.sh /mnt/nfs/nfs2/bickhart-users/cattle_asm
 
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/netChainSubset liftovers/ARS-UCDv14_to_ARS-UCDv1.2.net liftovers/ARS-UCDv14_to_ARS-UCDv1.2.sorted.chain liftovers/ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain
 ```
+
+### Liftover of ARS-UCDv14 VCF files to ARS-UCDv1.2
+
+First generate the dictionary of the reference/new assembly or else the picard LiftoverVcf will through a java error that is not very informative as I cannot understand and keep wondering what the problem was!!!
+
+```bash
+module load java
+module load picard
+[kiranmayee.bakshy@assembler2 condensed_vcfs]$ java -jar $PICARD CreateSequenceDictionary R=/mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa O=/mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa.dict  
+
+# check for the liftover of the smallest chromosome
+[kiranmayee.bakshy@assembler2 condensed_vcfs]$ java -jar $PICARD LiftoverVcf I=29.vcf.gz O=liftover_to_v1.2/29.vcf CHAIN=/mnt/nfs/nfs2/bickhart-users/cattle_asms/liftovers/ARS-UCDv1.2_to_ARS-UCDv14/ARS-UCDv1.2_to_ARS-UCDv14.liftover.chain REJECT=liftover_to_v1.2/rejected/29.r.vcf R=/mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa WRITE_ORIGINAL_POSITION=true
+
+# Now run a script to liftover all the chr files
+[kiranmayee.bakshy@assembler2 condensed_vcfs]$ sbatch -p assemble3 liftover.vcf.sh
+```
+There seems to be no errors and the script is running...
+
+#### Here is the liftover.vcf.sh script
+
+```bash
+#!/usr/bin/sh
+
+module load gatk/3.7  
+module load java/jdk1.8.0_92
+
+vcffile=vcf.list
+vcflines=`cat $vcffile`
+
+for i in $vcflines
+do 
+	name=`echo $i | rev | cut -c 8- | rev` 
+	echo $name
+java -jar /mnt/nfs/nfs1/kiranmayee.bakshy/picard/build/libs/picard.jar LiftoverVcf I=$i O=liftover_to_v1.2/$name.vcf CHAIN=/mnt/nfs/nfs2/bickhart-users/cattle_asms/liftovers/ARS-UCDv14_to_ARS-UCDv1.2/ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain REJECT=liftover_to_v1.2/rejected/$name.r.vcf R=/mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa WRITE_ORIGINAL_POSITION=true
+	echo "java -jar /mnt/nfs/nfs1/kiranmayee.bakshy/picard/build/libs/picard.jar LiftoverVcf I=$i O=liftover_to_v1.2/$name.vcf CHAIN=/mnt/nfs/nfs2/bickhart-users/cattle_asms/liftovers/ARS-UCDv14_to_ARS-UCDv1.2/ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain REJECT=liftover_to_v1.2/rejected/$name.r.vcf R=/mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa WRITE_ORIGINAL_POSITION=true"
+done
+```
+
+
+
+
+
+
