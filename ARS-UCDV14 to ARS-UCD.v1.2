@@ -1,11 +1,11 @@
-# Liftover of ARS-UCDv14 to and from the new assembly ARS-UCDv1.2 
+#Liftover of ARS-UCDv14 to and from the new assembly ARS-UCDv1.2 
 
-* I will be using minimap2 for genome alignment which gives a sam output file. 
-* I will then convert the sam file to psl, then chain format and finally the liftover chain
+  * I will be using minimap2 for genome alignment which gives a sam output file. 
+  * I will then convert the sam file to psl, then chain format and finally the liftover chain
 
 Working directory: /mnt/nfs/nfs2/bickhart-users/cattle_asms/liftovers
 
-** First the forward direction
+###First the forward direction
 Old assembly (From) directory: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc
 New assembly (To) directory: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi
 
@@ -19,8 +19,11 @@ sbatch -p assemble3 minimap2_align_kb.sh /mnt/nfs/nfs2/bickhart-users/cattle_asm
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/chainNet liftovers/ARS-UCDv14_to_ARS-UCDv1.2.sorted.chain /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc/ARS-UCD1.0.14.clean.wIGCHaps.fasta.2bit.info /mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi/ARS-UCD1.2.PlusY.fa.2bit.info liftovers/ARS-UCDv14_to_ARS-UCDv1.2.net /dev/null
 
 /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/netChainSubset liftovers/ARS-UCDv14_to_ARS-UCDv1.2.net liftovers/ARS-UCDv14_to_ARS-UCDv1.2.sorted.chain liftovers/ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain
+```
 
-# Check the liftover performance:
+####Check the liftover performance:
+
+```bash
 [kiranmayee.bakshy@assembler2 ARS-UCDv14_to_ARS-UCDv1.2]$ /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver /mnt/nfs/nfs1/derek.bickhart/CDDR-Project/vcfs/condensed_vcfs/vcf2bed/test.bed ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain mapped unmapped
 Reading liftover chains
 Mapping coordinates
@@ -31,7 +34,7 @@ Mapping coordinates
   47956018 total
 ```
 
-** Now the reverse direction **
+###Now the reverse direction
 Old assembly (From) directory: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ncbi
 New assembly (To) directory: /mnt/nfs/nfs2/bickhart-users/cattle_asms/ars_ucd_114_igc
 
