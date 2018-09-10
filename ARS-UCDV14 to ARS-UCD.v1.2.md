@@ -88,6 +88,46 @@ java -jar /mnt/nfs/nfs1/kiranmayee.bakshy/picard/build/libs/picard.jar LiftoverV
 done
 ```
 
+VCF Liftover was 95% successful. I have concatenated the individual vcf files to make one large vcf.
+
+```bash
+module load bcftools
+module load samtools
+module load htslib
+
+bcftools concat -a -f vcf.list | bcftools annotate -I 'bakshy_%CHROM\_%POS\_%REF\_%FIRST_ALT' |  bgzip  > combined.vcf.gz
+
+tabix -C combined.vcf.gz
+
+bcftools query -l combined.vcf.gz > sample.list
+```
+
+Now I need to liftover the haplotype segment coordinates bed file to the current assembly coordinates to start filtering...
+
+```bash
+[kiranmayee.bakshy@assembler2 condensed_vcfs]$ /mnt/nfs/nfs2/bickhart-users/binaries/kentUtils/bin/linux.x86_64/liftOver seg_cord.bed /mnt/nfs/nfs2/bickhart-users/cattle_asms/liftovers/ARS-UCDv14_to_ARS-UCDv1.2/ARS-UCDv14_to_ARS-UCDv1.2.liftover.chain liftover_to_v1.2/seg.cord.mapped liftover_to_v1.2/seg.unmapped
+Reading liftover chains
+Mapping coordinates
+```
+
+Out of 587 segments, 555 (94.5%) have lifted over to the current version, 32 segments failed to liftover because they were all partially deleted in new.
+
+Now start the filtration...
+
+```bash
+#First select only biallelic SNP and get rid of INDels and multiallelic SNPs in the regions of interest (seg.cord.mapped)...
+bcftools view -m2 -M2 -v snps combined.vcf.gz -R seg.cord.mapped -O z -o filtration/f1.vcf.gz
+
+#Index for further filtration
+tabix -C filtration/f1.vcf.gz
+
+#Remove duplicate entries
+/home/kiranmayee.bakshy/vcflib/bin/vcfuniq filtration/f1.vcf.gz | bgzip > filtration/f2.vcf.gz 
+tabix -C filtration/f2.vcf.gz
+
+#Now run the pipeline for progressive filtration and generate stats
+
+```
 
 
 
