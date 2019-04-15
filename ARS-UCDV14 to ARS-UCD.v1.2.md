@@ -129,6 +129,8 @@ tabix -C filtration/f2.vcf.gz
 
 ```
 
+This is the [link](https://github.com/bkiranmayee/My_Labnotes/blob/master/CDDR/Filtration_of_ARS-UCDv1.2_coordinates.md) to the variant filtration document...
+
 
 
 
